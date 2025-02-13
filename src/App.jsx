@@ -5,6 +5,7 @@ import './App.css'
 import Home from "./components/Home";
 import Question from "./components/Question";
 import Navbar from "./pages/Navbar";
+import Edit from "./pages/Edit";
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home/>} />
             <Route path="/question" element={<Question />} />
+            <Route path="/question/edit" element={<Edit />} />
           </Routes>
         </RecoilRoot>
       </div>
