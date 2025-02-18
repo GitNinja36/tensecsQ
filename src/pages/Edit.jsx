@@ -1,14 +1,47 @@
-import React, { useState } from "react";
-import Dropdown from "../components/Dropdown";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Edit = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", "", "", ""]);
   const [correctOption, setCorrectOption] = useState("");
   const [category, setCategory] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [image, setImage] = useState(null);
   const [newsSummary, setNewsSummary] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchQuestion();
+  }, [id]);
+
+  const fetchQuestion = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/v1/question/${id}`);
+      const questionData = response.data.data;
+
+      if (questionData) {
+        setQuestion(questionData.question);
+        setOptions([
+          questionData.option_1,
+          questionData.option_2,
+          questionData.option_3,
+          questionData.option_4,
+        ]);
+        setCorrectOption(questionData.correct_option);
+        setCategory(questionData.category);
+        setDifficulty(questionData.difficulty);
+        setNewsSummary(questionData.news_summary || "");
+      }
+    } catch (error) {
+      console.error("Error fetching question:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOptionChange = (index, value) => {
     setOptions((prev) => {
@@ -18,101 +51,128 @@ const Edit = () => {
     });
   };
 
-  const handleReset = () => {
-    setQuestion("");
-    setOptions(["", "", "", ""]);
-    setCorrectOption("");
-    setCategory("");
-    setDifficulty("");
-    setImage(null);
-    setNewsSummary("");
+  const handleUpdate = async () => {
+    try {
+      const updatedData = {
+        question,
+        option_1: options[0],
+        option_2: options[1],
+        option_3: options[2],
+        option_4: options[3],
+        correct_option: correctOption,
+        category,
+        difficulty,
+        news_summary: newsSummary,
+      };
+
+      await axios.patch(`http://localhost:3000/v1/question/${id}`, updatedData);
+      alert("Question updated successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error("Error updating question:", error);
+    }
   };
 
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:3000/v1/question/${id}`);
+      alert("Question deleted successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error("Error deleting question:", error);
+    }
+  };
+
+  if (loading) {
+    return <p className="text-center mt-10">Loading...</p>;
+  }
+
   return (
-    <div className="p-6 max-w-lg mx-auto bg-white shadow-md rounded-lg mt-10 border">
-      <textarea 
-        className="w-full border p-2 rounded mb-4" 
-        placeholder="Question" 
-        value={question} 
+    <div className="p-6 max-w-md mx-auto bg-white shadow-lg rounded-lg mt-10 border">
+      {/* Question Input */}
+      <textarea
+        className="w-full border p-2 rounded mb-4"
+        placeholder="Question"
+        value={question}
         onChange={(e) => setQuestion(e.target.value)}
-      ></textarea>
-      
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {options.map((option, index) => (
-          <input 
-            key={index} 
-            className="border p-2 rounded" 
-            placeholder={`Option ${index + 1}`} 
-            value={option} 
-            onChange={(e) => handleOptionChange(index, e.target.value)}
-          />
-        ))}
-      </div>
-      
-      <div className="grid grid-cols-3 gap-4 mb-4">
-        <select 
-          className="border p-2 rounded" 
-          value={correctOption} 
-          onChange={(e) => setCorrectOption(e.target.value)}
+      />
+
+      {/* Options Inputs */}
+      {options.map((option, index) => (
+        <input
+          key={index}
+          className="w-full border p-2 rounded mb-2"
+          placeholder={`Option ${index + 1}`}
+          value={option}
+          onChange={(e) => handleOptionChange(index, e.target.value)}
+        />
+      ))}
+
+      {/* Dropdowns */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        <select
+          className="border p-2 rounded"
+          value={correctOption}
+          onChange={(e) => setCorrectOption(Number(e.target.value))}
         >
           <option value="">Correct Option</option>
-          {options.map((option, index) => (
-            <option key={index} value={option}>{`Option ${index + 1}`}</option>
+          {options.map((_, index) => (
+            <option key={index} value={index + 1}>{`Option ${index + 1}`}</option>
           ))}
         </select>
-        
-        <Dropdown 
-          options={["current affairs", "politics", "history"]} 
-          name="Category" 
-          className="border p-2 rounded" 
-          value={category} 
-          onChange={(e) => setCategory(e.target.value)} 
-          placeholder="Category"
-        />
-        
-        <Dropdown 
-          options={["easy", "medium", "hard"]} 
-          name="Difficulty" 
-          className="border p-2 rounded" 
-          value={difficulty} 
-          onChange={(e) => setDifficulty(e.target.value)} 
-          placeholder="Difficulty"
-        />
+
+        <select
+          className="border p-2 rounded"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">Category</option>
+          <option value="current affairs">Current Affairs</option>
+          <option value="politics">Politics</option>
+          <option value="history">History</option>
+        </select>
+
+        <select
+          className="border p-2 rounded"
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value)}
+        >
+          <option value="">Difficulty</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
       </div>
-      
-      <div className="grid grid-rows-2 gap-4 mb-4">
-        <div className="border p-6 rounded text-center">
-          <input type="file" onChange={(e) => setImage(e.target.files[0])} />
-        </div>
-        <textarea 
-          className="border p-2 rounded w-full" 
-          placeholder="News Summary" 
-          value={newsSummary} 
-          onChange={(e) => setNewsSummary(e.target.value)}
-        ></textarea>
-      </div>
-      
+
+      {/* URL (Removed as per wireframe) */}
+
+      {/* News Summary */}
+      <textarea
+        className="w-full border p-2 rounded mb-4"
+        placeholder="News Summary"
+        value={newsSummary}
+        onChange={(e) => setNewsSummary(e.target.value)}
+      />
+
+      {/* Action Buttons */}
       <div className="flex justify-between">
-        <button 
+        <button
           className="border px-4 py-2 rounded hover:bg-gray-200 active:bg-gray-300 transition"
-          onClick={handleReset}
+          onClick={() => navigate("/")}
         >
           Cancel
         </button>
-        <button 
-          className="border px-4 py-2 rounded hover:bg-gray-200 active:bg-gray-300 transition"
+        <button
+          className="border px-4 py-2 rounded hover:bg-red-200 active:bg-red-300 transition"
+          onClick={handleDelete}
         >
           Delete
         </button>
-        <button 
-          className="border px-4 py-2 rounded hover:bg-gray-200 active:bg-gray-300 transition"
+        <button
+          className="border px-4 py-2 rounded hover:bg-yellow-200 active:bg-yellow-300 transition"
+          onClick={handleUpdate}
         >
           Edit
-        </button>
-        <button 
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 active:bg-blue-700 transition"
-        >
-          Save
         </button>
       </div>
     </div>
