@@ -11,6 +11,7 @@ const Edit = () => {
   const [correctOption, setCorrectOption] = useState("");
   const [category, setCategory] = useState("");
   const [difficulty, setDifficulty] = useState("");
+  const [newsUrl, setnewsUrl] = useState("");
   const [newsSummary, setNewsSummary] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -34,6 +35,7 @@ const Edit = () => {
         setCorrectOption(questionData.correct_option);
         setCategory(questionData.category);
         setDifficulty(questionData.difficulty);
+        setnewsUrl(questionData.image_url);
         setNewsSummary(questionData.news_summary || "");
       }
     } catch (error) {
@@ -127,9 +129,20 @@ const Edit = () => {
           onChange={(e) => setCategory(e.target.value)}
         >
           <option value="">Category</option>
-          <option value="current affairs">Current Affairs</option>
-          <option value="politics">Politics</option>
-          <option value="history">History</option>
+          <option value="sports">sports</option>
+          <option value="politics">politics</option>
+          <option value="history">history</option>
+          <option value="world">world</option>
+          <option value="technology">technology</option>
+          <option value="entertainment">entertainment</option>
+          <option value="business">business</option>
+          <option value="health">health</option>
+          <option value="science">science</option>
+          <option value="education">education</option>
+          <option value="lifestyle">lifestyle</option>
+          <option value="finance">finance</option>
+          <option value="startup">startup</option>
+          <option value="trending">trending</option>
         </select>
 
         <select
@@ -144,7 +157,22 @@ const Edit = () => {
         </select>
       </div>
 
-      {/* URL (Removed as per wireframe) */}
+      {/* Image URL */}
+      <input
+        className="w-full border p-2 rounded mb-4"
+        placeholder="Enter Image URL"
+        value={newsUrl}
+        onChange={(e) => setnewsUrl(e.target.value)}
+      />
+      {newsUrl && (
+        <div className="flex justify-center mt-2">
+          <img
+            src={newsUrl}
+            alt="Preview"
+            className="w-48 h-32 object-cover rounded shadow-md"
+          />
+        </div>
+      )}
 
       {/* News Summary */}
       <textarea

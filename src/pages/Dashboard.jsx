@@ -22,7 +22,7 @@ const Dashboard = () => {
 
   const fetchQuestions = async () => {
     try {
-      setError(null); // Reset error before making a request
+      setError(null);
       const params = {
         page: currentPage,
         page_size: itemsPerPage,
@@ -33,18 +33,18 @@ const Dashboard = () => {
       };
 
       const response = await axios.get("http://localhost:3000/v1/questions/", { params });
-
+      
       if (response.data?.data?.result.length > 0) {
         setQuestions(response.data.data.result);
         setHasMorePages(true);
       } else {
+        setQuestions([]);
         setHasMorePages(false);
       }
     } catch (err) {
       setQuestions([]);
       setHasMorePages(false);
       setError(err.response?.data?.message || "An error occurred while fetching data.");
-      console.error("Error fetching questions:", err);
     }
   };
 
@@ -57,59 +57,68 @@ const Dashboard = () => {
     }
   };
 
+  const handleFilterChange = (setter, value) => {
+    setter(value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="p-6 mt-12 max-w-5xl mx-auto bg-white shadow-md rounded-lg">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-4">
         <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={() => navigate("/question")}>New</button>
         <div className="flex space-x-2">
-          <select className="border px-4 py-2 rounded bg-gray-100" onChange={(e) => setCategory(e.target.value)}>
+          <select className="border px-4 py-2 rounded bg-gray-100" onChange={(e) => handleFilterChange(setCategory, e.target.value)}>
             <option value="">Category</option>
-            <option value="sports">Sports</option>
-            <option value="politics">Politics</option>
-            <option value="history">History</option>
+            <option value="sports">sports</option>
+            <option value="politics">politics</option>
+            <option value="history">history</option>
+            <option value="world">world</option>
+            <option value="technology">technology</option>
+            <option value="entertainment">entertainment</option>
+            <option value="business">business</option>
+            <option value="health">health</option>
+            <option value="science">science</option>
+            <option value="education">education</option>
+            <option value="lifestyle">lifestyle</option>
+            <option value="finance">finance</option>
+            <option value="startup">startup</option>
+            <option value="trending">trending</option>
           </select>
-          <select className="border px-4 py-2 rounded bg-gray-100" onChange={(e) => setDifficulty(e.target.value)}>
+          <select className="border px-4 py-2 rounded bg-gray-100" onChange={(e) => handleFilterChange(setDifficulty, e.target.value)}>
             <option value="">Difficulty</option>
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
           </select>
-          <select className="border px-4 py-2 rounded bg-gray-100" onChange={(e) => setAuthor(e.target.value)}>
+          <select className="border px-4 py-2 rounded bg-gray-100" onChange={(e) => handleFilterChange(setAuthor, e.target.value)}>
             <option value="">Author</option>
             {authors.map((a) => (
               <option key={a.id} value={a.id}>{a.username}</option>
             ))}
           </select>
-
-          {/* Improved Date Input */}
-          <div className="relative">
-            <input
-              type="date"
-              className="border px-4 py-2 rounded bg-gray-100 w-[150px] appearance-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              onChange={(e) => setDate(e.target.value)}
-            />
-            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-              📅
-            </span>
-          </div>
+          <input
+            type="date"
+            className="border px-4 py-2 rounded bg-gray-100 w-[150px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            onChange={(e) => handleFilterChange(setDate, e.target.value)}
+          />
         </div>
       </div>
 
       {/* Questions List */}
       <div className="border rounded-lg overflow-hidden">
         <div className="flex justify-between bg-gray-100 p-3 font-bold">
-          <span className="flex-1">Questions</span>
-          <span className="w-1/6 text-center">Author</span>
-          <span className="w-1/6 text-center">Category</span>
-          <span className="w-1/6 text-center">Difficulty</span>
-          <span className="w-1/6 text-center">Date</span>
-          <span className="w-1/12 text-center">Edit</span>
+          <span className="flex-1 ">Questions</span>
+          <span className="w-1/6 text-center pl-25">Author</span>
+          <span className="w-1/6 text-center pl-23">Category</span>
+          <span className="w-1/6 text-center pl-24">Difficulty</span>
+          <span className="w-1/6 text-center pl-25">Date</span>
+          <span className="w-1/12 text-center pl-10">Edit</span>
         </div>
         {questions.length > 0 ? (
           questions.map((question) => (
             <div key={question.id} className="flex justify-between items-center border-b p-3 last:border-none">
-              <span className="flex-1">{question.question}</span>
+              <span className="flex-1 ">{question.question}</span>
               <span className="w-1/6 text-center">{question.author?.username || "Unknown"}</span>
               <span className="w-1/6 text-center">{question.category}</span>
               <span className="w-1/6 text-center">{question.difficulty}</span>
@@ -123,9 +132,6 @@ const Dashboard = () => {
           <div className="text-center p-3">No questions found</div>
         )}
       </div>
-
-      {/* Error Message */}
-      {error && <div className="text-red-500 text-center mt-2">{error}</div>}
 
       {/* Pagination */}
       <div className="flex justify-center items-center mt-4 space-x-4">
