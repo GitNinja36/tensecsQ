@@ -11,7 +11,7 @@ const Dashboard = () => {
   const [author, setAuthor] = useState("");
   const [date, setDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [hasMorePages, setHasMorePages] = useState(true);
+  const [nextPage, setNextPage] = useState(null);
   const [error, setError] = useState(null);
   const itemsPerPage = 10;
 
@@ -36,14 +36,14 @@ const Dashboard = () => {
       
       if (response.data?.data?.result.length > 0) {
         setQuestions(response.data.data.result);
-        setHasMorePages(true);
+        setNextPage(response.data.data.next_page);
       } else {
         setQuestions([]);
-        setHasMorePages(false);
+        setNextPage(null);
       }
     } catch (err) {
       setQuestions([]);
-      setHasMorePages(false);
+      setNextPage(null);
       setError(err.response?.data?.message || "An error occurred while fetching data.");
     }
   };
@@ -99,7 +99,7 @@ const Dashboard = () => {
           </select>
           <input
             type="date"
-            className="border px-4 py-2 rounded bg-gray-100 w-[150px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="border px-4 py-2 mx-1 rounded bg-gray-100 w-[150px] focus:ring-2 focus:ring-blue-500 focus:outline-none"
             onChange={(e) => handleFilterChange(setDate, e.target.value)}
           />
         </div>
@@ -144,7 +144,7 @@ const Dashboard = () => {
         </button>
         <span>{currentPage}</span>
         <button
-          disabled={!hasMorePages}
+          disabled={!nextPage}
           className="border px-4 py-2 rounded disabled:opacity-50"
           onClick={() => setCurrentPage((prev) => prev + 1)}
         >

@@ -138,6 +138,7 @@ const NewQuestion = () => {
 
             {/* Dropdowns */}
             <div className="grid grid-cols-3 gap-4 mb-4">
+              {/* Correct Option */}
               <select
                 className="border p-2 rounded"
                 value={form.correctOption}
@@ -145,32 +146,34 @@ const NewQuestion = () => {
               >
                 <option value="">Correct Option</option>
                 {form.options.map((_, idx) => (
-                  <option key={idx} value={idx + 1}>{`Option ${idx + 1}`}</option>
+                  <option key={idx} value={idx + 1}>{`${idx + 1}`}</option>
                 ))}
               </select>
 
+              {/* Category */}
               <select
                 className="border p-2 rounded"
                 value={form.category}
                 onChange={(e) => handleChange(index, "category", e.target.value)}
               >
                 <option value="">Category</option>
-                <option value="sports">sports</option>
-                <option value="politics">politics</option>
-                <option value="history">history</option>
-                <option value="world">world</option>
-                <option value="technology">technology</option>
-                <option value="entertainment">entertainment</option>
-                <option value="business">business</option>
-                <option value="health">health</option>
-                <option value="science">science</option>
-                <option value="education">education</option>
-                <option value="lifestyle">lifestyle</option>
-                <option value="finance">finance</option>
-                <option value="startup">startup</option>
-                <option value="trending">trending</option>
+                <option value="sports">Sports</option>
+                <option value="politics">Politics</option>
+                <option value="history">History</option>
+                <option value="world">World</option>
+                <option value="technology">Technology</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="business">Business</option>
+                <option value="health">Health</option>
+                <option value="science">Science</option>
+                <option value="education">Education</option>
+                <option value="lifestyle">Lifestyle</option>
+                <option value="finance">Finance</option>
+                <option value="startup">Startup</option>
+                <option value="trending">Trending</option>
               </select>
 
+              {/* Difficulty */}
               <select
                 className="border p-2 rounded"
                 value={form.difficulty}
@@ -186,25 +189,25 @@ const NewQuestion = () => {
             {/* URL Input */}
             <label className="block font-semibold mb-1">Image URL</label>
             <input
-              className="w-full border p-2 rounded mb-4"
+              className="w-full border p-2 rounded mb-3"
               placeholder="Enter Image URL"
               value={form.imageUrl}
               onChange={(e) => handleChange(index, "imageUrl", e.target.value)}
             />
             {form.imageUrl && (
-              <div className="flex justify-center mt-2">
+              <div className="flex justify-center mb-3">
                 <img
                   src={form.imageUrl}
                   alt="Preview"
-                  className="w-48 h-32 object-cover rounded shadow-md"
+                  className="w-50 h-40 object-scale-down rounded shadow-md"
                 />
               </div>
             )}
             
             {/* News Summary */}
-            <label className="block font-semibold mb-1">News Summary</label>
+            <label className="block font-semibold mb-1 ">News Summary</label>
             <textarea
-              className="w-full border p-2 rounded mb-4"
+              className="w-full border p-2 rounded mb-4 h-30"
               placeholder="Enter news summary"
               value={form.newsSummary}
               onChange={(e) => handleChange(index, "newsSummary", e.target.value)}

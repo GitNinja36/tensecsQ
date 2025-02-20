@@ -2,11 +2,13 @@ import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuIt
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import logo from '/src/assets/10secsLogo.png'
 import profile from '/src/assets/profile.png'
+import { useNavigate } from "react-router-dom";
 
 const navigation = [
   { name: 'Dashboard', href: '/', current: false },
   { name: 'Question', href: '/question', current: false },
-  { name: 'Status', href: '/', current: false },
+  { name: 'Create User', href: '/user/createuser', current: false },
+  { name: 'Final check', href: '/question/approved', current: false },
 ]
 
 function classNames(...classes) {
@@ -14,6 +16,7 @@ function classNames(...classes) {
 }
 
 export default function Navbar() {
+  const navigate = useNavigate();
   return (
     <Disclosure as="nav" className="bg-gray-800">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -86,12 +89,14 @@ export default function Navbar() {
                     href="#"
                     className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                   >
-                    Settings
+                    Your Questions
                   </a>
                 </MenuItem>
                 <MenuItem>
                   <a
-                    href="#"
+                    onClick={()=>{
+                      navigate("/user/auth")
+                    }}
                     className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                   >
                     Sign out
