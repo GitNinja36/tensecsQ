@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = "http://localhost:3000/v1";
 
 function CheckQuestion() {
-  const [questions, setQuestions] = useState([]);
+  const navigate = useNavigate();
+  const [question, setQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
 
@@ -14,100 +16,140 @@ function CheckQuestion() {
     const fetchUserRole = async () => {
       try {
         const userId = localStorage.getItem("userId");
-        if (!userId) {
-          toast.error("Unauthorized access.");
-          return;
-        }
-
         const response = await axios.get(`${API_BASE_URL}/author/all`);
         const user = response.data.data.find((u) => u.id === userId);
-        
-        if (!user || (user.role !== "editor" && user.role !== "admin")) {
-          toast.error("You do not have permission to access this page.");
+
+        if (user) {
+          if (user.role === "creator") {
+            navigate("/");
+            toast.error(`${user.role} don't have access to this page`);
+            return;
+          }
+        } else {
+          navigate("/user/auth");
+          toast.error("You must login first");
           return;
         }
-        
+
         setUserRole(user.role);
-        fetchQuestions();
+        fetchQuestion();
       } catch (error) {
         toast.error("Error fetching user role.");
-      }
-    };
-
-    const fetchQuestions = async () => {
-      try {
-        const response = await axios.get(`${API_BASE_URL}/questions?page=1&page_size=10&status=draft`);
-        setQuestions(response.data.data.result);
-      } catch (error) {
-        toast.error("Error fetching questions.");
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchUserRole();
   }, []);
 
-  const toggleApproval = async (questionId, currentStatus) => {
+  const fetchQuestion = async () => {
+    setLoading(true);
     try {
-      const newStatus = currentStatus === "draft" ? "published" : "draft";
-
-      const response = await axios.patch(`${API_BASE_URL}/question/${questionId}`, { status: newStatus });
-
-      if (response.data.data.status === newStatus) {
-        setQuestions((prevQuestions) =>
-          prevQuestions.map((q) =>
-            q.id === questionId ? { ...q, status: newStatus } : q
-          )
-        );
-
-        toast.success(`Question has been ${newStatus === "published" ? "approved" : "reverted"}`);
-      }
+      const response = await axios.get(
+        `${API_BASE_URL}/questions?page=1&page_size=1&status=draft`
+      );
+      setQuestion(response.data.data.result[0] || null);
     } catch (error) {
-      toast.error("Error updating question status.");
+      toast.error("Error fetching question.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const approveQuestion = async (questionId) => {
+    try {
+      await axios.patch(`${API_BASE_URL}/question/${questionId}`, {
+        status: "published",
+      });
+      toast.success("Question approved successfully");
+      fetchQuestion();
+    } catch (error) {
+      toast.error("Error approving question.");
+    }
+  };
+
+  const deleteQuestion = async (questionId) => {
+    try {
+      await axios.delete(`${API_BASE_URL}/question/${questionId}`);
+      toast.success("Question deleted successfully");
+      fetchQuestion();
+    } catch (error) {
+      toast.error("Error deleting question.");
     }
   };
 
   if (!userRole) return null;
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Questions for Approval</h2>
-      
+    <div className="container mx-auto p-6 flex flex-col items-center">
+      <h2 className="text-2xl font-bold mb-6 text-center">Final Check - Approve Questions</h2>
       {loading ? (
-        <p>Loading questions...</p>
-      ) : (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-2 border">Question</th>
-              <th className="p-2 border">Category</th>
-              <th className="p-2 border">Difficulty</th>
-              <th className="p-2 border">Date</th>
-              <th className="p-2 border">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {questions.map((q) => (
-              <tr key={q.id} className="text-center">
-                <td className="p-2 border">{q.question}</td>
-                <td className="p-2 border">{q.category}</td>
-                <td className="p-2 border">{q.difficulty}</td>
-                <td className="p-2 border">{q.news_date}</td>
-                <td className="p-2 border">
-                  <button
-                    className={`p-1 px-3 rounded ${
-                      q.status === "draft" ? "bg-yellow-500" : "bg-green-500"
-                    } text-white`}
-                    onClick={() => toggleApproval(q.id, q.status)}
-                  >
-                    {q.status === "draft" ? "Not Approved" : "Approved"}
-                  </button>
-                </td>
-              </tr>
+        <p className="text-gray-600">Loading question...</p>
+      ) : question ? (
+        <div className="p-6 max-w-lg w-full bg-white shadow-xl rounded-lg border border-gray-200 mb-4">
+          {/* Image Preview Section */}
+          {question.image_url && (
+            <div className="flex justify-center mb-4">
+              <img
+                src={question.image_url}
+                alt="Question Preview"
+                className="w-full h-40 object-cover rounded-md shadow-md"
+              />
+            </div>
+          )}
+
+          {/* Question */}
+          <h3 className="w-full border p-3 rounded-md bg-gray-100 font-semibold text-lg mb-4">
+            {question.question}
+          </h3>
+
+          {/* Options */}
+          <ul className="w-full ">
+            {["option_1", "option_2", "option_3", "option_4"].map((optionKey, index) => (
+              <li
+                key={index}
+                className={`w-full border p-3 rounded-md mb-2 cursor-pointer transition-all ${
+                  `option_${question.correct_option}` === optionKey ? "border-green-600 text-green-400 font-bold" : "border-gray-300"
+                }`}
+              >
+                {question[optionKey]}
+              </li>
             ))}
-          </tbody>
-        </table>
+          </ul>
+
+          {/* Category & Difficulty */}
+          <div className="grid grid-cols-2 gap-4 mt-4 text-gray-700 pb-4">
+            <p>
+              <strong>Category:</strong> {question.category}
+            </p>
+            <p>
+              <strong>Difficulty:</strong> {question.difficulty}
+            </p>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-between mt-6 mb-2">
+            <button
+              className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-md transition-all"
+              onClick={() => approveQuestion(question.id)}
+            >
+              Approve
+            </button>
+            <button
+              className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-md transition-all"
+              onClick={() => deleteQuestion(question.id)}
+            >
+              Delete
+            </button>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md transition-all"
+              onClick={() => navigate(`/question/edit/${question.id}`)}
+            >
+              Edit
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-gray-600">No more questions to review.</p>
       )}
     </div>
   );

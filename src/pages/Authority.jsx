@@ -18,18 +18,20 @@ function Authority() {
   useEffect(() => {
     const fetchUserData = async () => {
       const userId = localStorage.getItem("userId");
-      if (!userId) {
-        navigate("/user/auth");
-        return;
-      }
       try {
         const response = await axios.get("http://localhost:3000/v1/author/all");
         const users = response.data.data;
         const currentUser = users.find((user) => user.id === userId);
-        if (!currentUser || currentUser.role !== "admin") {
-          navigate("/");
-          toast.error(`${currentUser.role} don't have access to Create User`)
-          return;
+        if (currentUser) {
+          if ((currentUser.role == "editor" || currentUser.role == "creator")) {
+            navigate("/");
+            toast.error(`${currentUser.role} don't have access to Create User`)
+            return;
+          }
+        } else{
+            navigate("/user/auth");
+            toast.error(`You must login first`)
+            return;
         }
         setUserData(currentUser);
       } catch (error) {
