@@ -15,9 +15,10 @@ function CheckQuestion() {
   useEffect(() => {
     const fetchUserRole = async () => {
       try {
-        const userId = localStorage.getItem("userId");
+        const userData = JSON.parse(localStorage.getItem("userData"));
+        console.log(userData.userId)
         const response = await axios.get(`${API_BASE_URL}/author/all`);
-        const user = response.data.data.find((u) => u.id === userId);
+        const user = response.data.data.find((u) => u.id === userData.userId);
 
         if (user) {
           if (user.role === "creator") {
@@ -125,6 +126,9 @@ function CheckQuestion() {
               <strong>Difficulty:</strong> {question.difficulty}
             </p>
           </div>
+
+          {/* News Summary */}
+          <p className="w-full border p-2 rounded mb-4 h-30 ">{question.news_summary}</p>
 
           {/* Buttons */}
           <div className="flex justify-between mt-6 mb-2">

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
 const Edit = () => {
@@ -54,6 +56,25 @@ const Edit = () => {
   };
 
   const handleUpdate = async () => {
+    if (!question || !correctOption || !category || !difficulty || options.some(opt => !opt) || !newsSummary) {
+      toast.error("All fields must be filled and dropdowns must be selected!");
+      return;
+    }
+
+    if (question.length > 100) {
+      toast.error("Question limit exceeded (max 100 characters)");
+      return;
+    }
+
+    if (options.some(opt => opt.length > 30)) {
+      toast.error("Options limit exceeded (max 30 characters)");
+      return;
+    }
+
+    if (newsSummary.length > 500) {
+      toast.error("Summary limit exceeded (max 500 characters)");
+      return;
+    }
     try {
       const updatedData = {
         question,
@@ -68,7 +89,7 @@ const Edit = () => {
       };
 
       await axios.patch(`http://localhost:3000/v1/question/${id}`, updatedData);
-      alert("Question updated successfully!");
+      toast.success("Question updated successfully!");
       navigate("/");
     } catch (error) {
       console.error("Error updating question:", error);
@@ -78,7 +99,7 @@ const Edit = () => {
   const handleDelete = async () => {
     try {
       await axios.delete(`http://localhost:3000/v1/question/${id}`);
-      alert("Question deleted successfully!");
+      toast.success("Question deleted successfully!");
       navigate("/");
     } catch (error) {
       console.error("Error deleting question:", error);
@@ -94,7 +115,6 @@ const Edit = () => {
       {/* Question Input */}
       <textarea
         className="w-full border p-2 rounded mb-4 "
-        maxLength={100}
         placeholder="Question"
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
@@ -105,7 +125,6 @@ const Edit = () => {
         <input
           key={index}
           className="w-full border p-2 rounded mb-2 "
-          maxLength={30}
           placeholder={`Option ${index + 1}`}
           value={option}
           onChange={(e) => handleOptionChange(index, e.target.value)}
@@ -175,7 +194,7 @@ const Edit = () => {
           <img
             src={newsUrl}
             alt="Preview"
-            className="w-50 h-40 object-scale-down rounded shadow-md"
+            className="w-full h-100 object-fill rounded shadow-md"
           />
         </div>
       )}
@@ -183,7 +202,6 @@ const Edit = () => {
       {/* News Summary */}
       <textarea
         className="w-full border p-2 rounded mb-4 h-30 "
-        maxLength={500}
         placeholder="News Summary"
         value={newsSummary}
         onChange={(e) => setNewsSummary(e.target.value)}

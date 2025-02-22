@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const NewQuestion = () => {
   const navigate = useNavigate();
@@ -14,6 +16,37 @@ const NewQuestion = () => {
       newsSummary: "",
     },
   ]);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData || !userData.username || !userData.userId) {
+      navigate("/user/createuser");
+      return;
+    }
+    
+    const verifyUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/v1/author/all");
+        if (!response.ok) throw new Error("Failed to fetch authors");
+
+        const data = await response.json();
+        const validUser = data.data.find(
+          (user) => user.username === userData.username && user.id === userData.userId
+        );
+
+        if (!validUser) {
+          navigate("/user/createuser");
+        } else {
+          setIsAuthorized(true);
+        }
+      } catch (error) {
+        console.error("Authorization failed:", error);
+        navigate("/user/createuser");
+      }
+    };
+
+    verifyUser();
+  }, [navigate]);
 
   const handleChange = (index, field, value) => {
     setForms((prev) =>
@@ -35,20 +68,9 @@ const NewQuestion = () => {
 
   const handleDuplicate = () => {
     if (forms.length < 3) {
-      setForms((prev) => [
-        ...prev,
-        {
-          question: "",
-          options: ["", "", "", ""],
-          correctOption: "",
-          category: "",
-          difficulty: "",
-          imageUrl: "",
-          newsSummary: "",
-        },
-      ]);
+      setForms((prev) => [...prev, { ...prev[prev.length - 1] }]);
     } else {
-      alert("You can only add up to 3 forms.");
+      toast.error("You can only add up to 3 forms.");
     }
   };
 
@@ -71,6 +93,32 @@ const NewQuestion = () => {
   };
 
   const handleSave = async () => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    console.log(userData.userId);
+    console.log(userData.username);
+    if (!userData) {
+      toast.error("User authentication failed.");
+      return;
+    }
+
+    for (const form of forms) {
+      if (!form.question.trim() || !form.correctOption || !form.category || !form.difficulty || form.options.some(opt => !opt.trim()) || !form.newsSummary.trim()) {
+        toast.error("All fields are required.");
+        return;
+      }
+      if (form.question.length > 100) {
+        toast.success("Question limit exceeded more than 100 characters");
+        return;
+      }
+      if (form.options.some(opt => opt.length > 30)) {
+        toast.success("Options limit exceeded more than 30 characters");
+        return;
+      }
+      if (form.newsSummary.length > 500) {
+        toast.success("Summary limit exceeded more than 500 characters");
+        return;
+      }
+    }
     try {
       const requestData = forms.map((form) => ({
         question: form.question,
@@ -84,6 +132,7 @@ const NewQuestion = () => {
         image_url: form.imageUrl,
         news_summary: form.newsSummary,
         status: "draft",
+        author_id: userData.userId,
       }));
 
       const response = await fetch("http://localhost:3000/v1/questions/", {
@@ -99,13 +148,14 @@ const NewQuestion = () => {
         throw new Error(`Error ${response.status}: ${errorText}`);
       }
 
-      alert("Questions saved successfully!");
+      toast.success("Questions saved successfully!");
       navigate("/");
     } catch (error) {
       console.error("Error saving questions:", error);
-      alert("Failed to save questions.");
+      toast.error("Failed to save questions.");
     }
   };
+  if (!isAuthorized) return null;
 
   return (
     <div className="p-6 max-w-7xl mx-auto bg-white shadow-md rounded-lg">
@@ -199,7 +249,7 @@ const NewQuestion = () => {
                 <img
                   src={form.imageUrl}
                   alt="Preview"
-                  className="w-50 h-40 object-scale-down rounded shadow-md"
+                  className="w-full h-100 object-fill rounded shadow-md"
                 />
               </div>
             )}

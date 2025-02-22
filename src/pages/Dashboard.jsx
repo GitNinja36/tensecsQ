@@ -15,6 +15,39 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
   const itemsPerPage = 10;
 
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData || !userData.username || !userData.userId) {
+      navigate("/user/createuser");
+      return;
+    }
+    
+    const verifyUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/v1/author/all");
+        if (!response.ok) throw new Error("Failed to fetch authors");
+
+        const data = await response.json();
+        const validUser = data.data.find(
+          (user) => user.username === userData.username && user.id === userData.userId
+        );
+
+        if (!validUser) {
+          navigate("/user/createuser");
+        } else {
+          setIsAuthorized(true);
+        }
+      } catch (error) {
+        console.error("Authorization failed:", error);
+        navigate("/user/createuser");
+      }
+    };
+
+    verifyUser();
+  }, [navigate]);
+
   useEffect(() => {
     fetchQuestions();
     fetchAuthors();

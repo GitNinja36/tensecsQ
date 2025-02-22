@@ -17,7 +17,13 @@ const Auth = () => {
       });
 
       if (response.data.valid) {
-        localStorage.setItem("userId", response.data.data.id);
+        const expires = new Date().getTime() + 60 * 60 * 1000; // 1 hour from now
+        const userData = {
+          userId: response.data.data.id,
+          username: response.data.data.username,
+          expires,
+        };
+        localStorage.setItem("userData", JSON.stringify(userData));
         toast.success("Welcome to the dashboard!");
         navigate("/");
       } else {

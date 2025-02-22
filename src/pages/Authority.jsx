@@ -17,11 +17,11 @@ function Authority() {
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const userId = localStorage.getItem("userId");
+      const userData = JSON.parse(localStorage.getItem("userData"));
       try {
         const response = await axios.get("http://localhost:3000/v1/author/all");
         const users = response.data.data;
-        const currentUser = users.find((user) => user.id === userId);
+        const currentUser = users.find((user) => user.id === userData.userId);
         if (currentUser) {
           if ((currentUser.role == "editor" || currentUser.role == "creator")) {
             navigate("/");

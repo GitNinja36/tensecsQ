@@ -9,6 +9,7 @@ const navigation = [
   { name: 'Question', href: '/question', current: false },
   { name: 'Create User', href: '/user/createuser', current: false },
   { name: 'Final check', href: '/question/approved', current: false },
+  { name: 'Referance', href: '/question/referance', current: false },
 ]
 
 function classNames(...classes) {
@@ -17,6 +18,10 @@ function classNames(...classes) {
 
 export default function Navbar() {
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    navigate("/logout"); // Redirect to logout page
+  };
   return (
     <Disclosure as="nav" className="bg-gray-800">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -94,9 +99,7 @@ export default function Navbar() {
                 </MenuItem> */}
                 <MenuItem>
                   <a
-                    onClick={()=>{
-                      navigate("/user/auth")
-                    }}
+                    onClick={handleLogout}
                     className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
                   >
                     Sign out
