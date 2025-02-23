@@ -11,6 +11,39 @@ function CheckQuestion() {
   const [question, setQuestion] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData || !userData.username || !userData.userId) {
+      navigate("/user/createuser");
+      return;
+    }
+    
+    const verifyUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/v1/author/all");
+        if (!response.ok) throw new Error("Failed to fetch authors");
+
+        const data = await response.json();
+        const validUser = data.data.find(
+          (user) => user.username === userData.username && user.id === userData.userId
+        );
+
+        if (!validUser) {
+          navigate("/user/createuser");
+        } else {
+          setIsAuthorized(true);
+        }
+      } catch (error) {
+        console.error("Authorization failed:", error, {
+          autoClose: 1000,
+        });
+        navigate("/user/createuser");
+      }
+    };
+
+    verifyUser();
+  }, [navigate]);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -23,19 +56,25 @@ function CheckQuestion() {
         if (user) {
           if (user.role === "creator") {
             navigate("/");
-            toast.error(`${user.role} don't have access to this page`);
+            toast.error(`${user.role} don't have access to this page`, {
+              autoClose: 1000,
+            });
             return;
           }
         } else {
           navigate("/user/auth");
-          toast.error("You must login first");
+          toast.error("You must login first", {
+            autoClose: 1000,
+          });
           return;
         }
 
         setUserRole(user.role);
         fetchQuestion();
       } catch (error) {
-        toast.error("Error fetching user role.");
+        toast.error("you must login First", {
+          autoClose: 1000,
+        });
       }
     };
 
@@ -50,7 +89,9 @@ function CheckQuestion() {
       );
       setQuestion(response.data.data.result[0] || null);
     } catch (error) {
-      toast.error("Error fetching question.");
+      toast.error("Error fetching question.", {
+        autoClose: 1000,
+      });
     } finally {
       setLoading(false);
     }
@@ -61,20 +102,28 @@ function CheckQuestion() {
       await axios.patch(`${API_BASE_URL}/question/${questionId}`, {
         status: "published",
       });
-      toast.success("Question approved successfully");
+      toast.success("Question approved successfully", {
+        autoClose: 1000,
+      });
       fetchQuestion();
     } catch (error) {
-      toast.error("Error approving question.");
+      toast.error("Error approving question.", {
+        autoClose: 1000,
+      });
     }
   };
 
   const deleteQuestion = async (questionId) => {
     try {
       await axios.delete(`${API_BASE_URL}/question/${questionId}`);
-      toast.success("Question deleted successfully");
+      toast.success("Question deleted successfully", {
+        autoClose: 1000,
+      });
       fetchQuestion();
     } catch (error) {
-      toast.error("Error deleting question.");
+      toast.error("Error deleting question.", {
+        autoClose: 1000,
+      });
     }
   };
 

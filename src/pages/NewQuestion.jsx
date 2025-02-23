@@ -40,7 +40,9 @@ const NewQuestion = () => {
           setIsAuthorized(true);
         }
       } catch (error) {
-        console.error("Authorization failed:", error);
+        console.error("Authorization failed:", error, {
+          autoClose: 1000,
+        });
         navigate("/user/createuser");
       }
     };
@@ -70,7 +72,9 @@ const NewQuestion = () => {
     if (forms.length < 3) {
       setForms((prev) => [...prev, { ...prev[prev.length - 1] }]);
     } else {
-      toast.error("You can only add up to 3 forms.");
+      toast.error("You can only add up to 3 forms.", {
+        autoClose: 1000,
+      });
     }
   };
 
@@ -94,28 +98,36 @@ const NewQuestion = () => {
 
   const handleSave = async () => {
     const userData = JSON.parse(localStorage.getItem("userData"));
-    console.log(userData.userId);
-    console.log(userData.username);
     if (!userData) {
-      toast.error("User authentication failed.");
+      toast.error("User authentication failed.", {
+        autoClose: 1000,
+      });
       return;
     }
 
     for (const form of forms) {
       if (!form.question.trim() || !form.correctOption || !form.category || !form.difficulty || form.options.some(opt => !opt.trim()) || !form.newsSummary.trim()) {
-        toast.error("All fields are required.");
+        toast.error("All fields are required.", {
+          autoClose: 1000,
+        });
         return;
       }
       if (form.question.length > 100) {
-        toast.success("Question limit exceeded more than 100 characters");
+        toast.success("Question limit exceeded more than 100 characters", {
+          autoClose: 1000,
+        });
         return;
       }
       if (form.options.some(opt => opt.length > 30)) {
-        toast.success("Options limit exceeded more than 30 characters");
+        toast.success("Options limit exceeded more than 30 characters", {
+          autoClose: 1000,
+        });
         return;
       }
       if (form.newsSummary.length > 500) {
-        toast.success("Summary limit exceeded more than 500 characters");
+        toast.success("Summary limit exceeded more than 500 characters", {
+          autoClose: 1000,
+        });
         return;
       }
     }
@@ -148,11 +160,15 @@ const NewQuestion = () => {
         throw new Error(`Error ${response.status}: ${errorText}`);
       }
 
-      toast.success("Questions saved successfully!");
+      toast.success("Questions saved successfully!", {
+        autoClose: 1000,
+      });
       navigate("/");
     } catch (error) {
       console.error("Error saving questions:", error);
-      toast.error("Failed to save questions.");
+      toast.error("Failed to save questions.", {
+        autoClose: 1000,
+      });
     }
   };
   if (!isAuthorized) return null;

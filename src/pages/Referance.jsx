@@ -15,13 +15,46 @@ function Referance() {
   const [category, setCategory] = useState("sports");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("userData"));
+    if (!userData || !userData.username || !userData.userId) {
+      navigate("/user/createuser");
+      return;
+    }
+    
+    const verifyUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/v1/author/all");
+        if (!response.ok) throw new Error("Failed to fetch authors");
+
+        const data = await response.json();
+        const validUser = data.data.find(
+          (user) => user.username === userData.username && user.id === userData.userId
+        );
+
+        if (!validUser) {
+          navigate("/user/createuser");
+        } else {
+          setIsAuthorized(true);
+        }
+      } catch (error) {
+        console.error("Authorization failed:", error, {
+          autoClose: 1000,
+        });
+        navigate("/user/createuser");
+      }
+    };
+
+    verifyUser();
+  }, [navigate]);
 
   useEffect(() => {
     setLoading(true);
     axios.get(`http://localhost:3000/v1/news?source=${source}&category=${category}`)
       .then(response => {
-        if (response.data?.data?.data && Array.isArray(response.data.data.data)) {
-          setNews(response.data.data.data);
+        if (response.data?.data && Array.isArray(response.data.data)) {
+          setNews(response.data.data);
         } else {
           console.error("Invalid API response format:", response.data);
           setNews([]);
@@ -38,7 +71,9 @@ function Referance() {
     try {
       const userData = JSON.parse(localStorage.getItem("userData"));
       if (!userData || !userData.userId) {
-        toast.error("User not found. Please log in.");
+        toast.error("User not found. Please log in.", {
+          autoClose: 1000,
+        });
         return;
       }
 
@@ -59,14 +94,15 @@ function Referance() {
         }
       ];
 
-      console.log("Sending question data:", questionData);  // Debugging step
+      console.log("Sending question data:", questionData); 
 
       const response = await axios.post("http://localhost:3000/v1/questions/", questionData);
 
       if (response.status === 201) {
-        toast.success("Question created successfully");
+        toast.success("Question created successfully", {
+          autoClose: 1000,
+        });
 
-        // Fetch latest questions to find the created one
         const questionsResponse = await axios.get("http://localhost:3000/v1/questions?page_size=100");
 
         if (questionsResponse.status === 200 && questionsResponse.data.data.result) {
@@ -76,13 +112,17 @@ function Referance() {
           if (createdQuestion) {
             navigate(`/question/edit/${createdQuestion.id}`);
           } else {
-            toast.error("Question created but not found in the list.");
+            toast.error("Question created but not found in the list.", {
+              autoClose: 1000, 
+            });
           }
         }
       }
     } catch (error) {
       console.error("Error creating question:", error);
-      toast.error("Failed to create question. Please check console for details.");
+      toast.error("Failed to create question. Please check console for details.", {
+        autoClose: 1000, 
+      });
     }
   };
 

@@ -24,13 +24,19 @@ const Auth = () => {
           expires,
         };
         localStorage.setItem("userData", JSON.stringify(userData));
-        toast.success("Welcome to the dashboard!");
+        toast.success("Welcome to the dashboard!", {
+          autoClose: 1000,
+        });
         navigate("/");
       } else {
-        toast.error("Incorrect username or password.");
+        toast.error("Incorrect username or password.", {
+          autoClose: 1000,
+        });
       }
     } catch (error) {
-      toast.error("Login failed. Please try again.");
+      toast.error("Login failed. Please try again.", {
+        autoClose: 1000,
+      });
     }
   };
 

@@ -25,12 +25,16 @@ function Authority() {
         if (currentUser) {
           if ((currentUser.role == "editor" || currentUser.role == "creator")) {
             navigate("/");
-            toast.error(`${currentUser.role} don't have access to Create User`)
+            toast.error(`${currentUser.role} don't have access to Create User`, {
+              autoClose: 1000,
+            })
             return;
           }
         } else{
             navigate("/user/auth");
-            toast.error(`You must login first`)
+            toast.error(`You must login first`, {
+              autoClose: 1000,
+            })
             return;
         }
         setUserData(currentUser);
@@ -54,11 +58,15 @@ function Authority() {
       });
 
       if (response.data.data) {
-        toast.success(`Now ${response.data.data.username} becomes ${response.data.data.role}`);
+        toast.success(`Now ${response.data.data.username} becomes ${response.data.data.role}`, {
+          autoClose: 1000,
+        });
         navigate("/");
       }
     } catch (error) {
-      toast.error("Incorrect input");
+      toast.error("Incorrect input", {
+        autoClose: 1000,
+      });
     }
   };
 

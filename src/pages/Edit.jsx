@@ -57,22 +57,30 @@ const Edit = () => {
 
   const handleUpdate = async () => {
     if (!question || !correctOption || !category || !difficulty || options.some(opt => !opt) || !newsSummary) {
-      toast.error("All fields must be filled and dropdowns must be selected!");
+      toast.error("All fields must be filled and dropdowns must be selected!", {
+        autoClose: 1000,
+      });
       return;
     }
 
     if (question.length > 100) {
-      toast.error("Question limit exceeded (max 100 characters)");
+      toast.error("Question limit exceeded (max 100 characters)", {
+        autoClose: 1000,
+      });
       return;
     }
 
     if (options.some(opt => opt.length > 30)) {
-      toast.error("Options limit exceeded (max 30 characters)");
+      toast.error("Options limit exceeded (max 30 characters)", {
+        autoClose: 1000,
+      });
       return;
     }
 
     if (newsSummary.length > 500) {
-      toast.error("Summary limit exceeded (max 500 characters)");
+      toast.error("Summary limit exceeded (max 500 characters)", {
+        autoClose: 1000,
+      });
       return;
     }
     try {
@@ -89,7 +97,9 @@ const Edit = () => {
       };
 
       await axios.patch(`http://localhost:3000/v1/question/${id}`, updatedData);
-      toast.success("Question updated successfully!");
+      toast.success("Question updated successfully!", {
+        autoClose: 1000,
+      });
       navigate("/");
     } catch (error) {
       console.error("Error updating question:", error);
@@ -99,7 +109,9 @@ const Edit = () => {
   const handleDelete = async () => {
     try {
       await axios.delete(`http://localhost:3000/v1/question/${id}`);
-      toast.success("Question deleted successfully!");
+      toast.success("Question deleted successfully!", {
+        autoClose: 1000,
+      });
       navigate("/");
     } catch (error) {
       console.error("Error deleting question:", error);
