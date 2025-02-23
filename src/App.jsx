@@ -10,7 +10,7 @@ import Auth from "./pages/Auth";
 import { ToastContainer, toast } from "react-toastify";
 import Authority from "./pages/Authority";
 import CheckQuestion from "./pages/CheckQuestion";
-import Referance from "./pages/referance";
+import Referance from "./pages/Referance";
 import Logout from "./pages/Logout"; 
 
 function App() {
