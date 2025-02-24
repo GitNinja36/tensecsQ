@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+const API_BASE_URL = "http://localhost:3000/v1";
+
 const Auth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -11,7 +13,7 @@ const Auth = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/v1/author/verify-creds", {
+      const response = await axios.post(`${API_BASE_URL}/author/verify-creds`, {
         username,
         password,
       });

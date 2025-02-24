@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
+const API_BASE_URL = "http://localhost:3000/v1";
+
 const Edit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,7 +25,7 @@ const Edit = () => {
 
   const fetchQuestion = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/v1/question/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/question/${id}`);
       const questionData = response.data.data;
 
       if (questionData) {
@@ -96,7 +98,7 @@ const Edit = () => {
         news_summary: newsSummary,
       };
 
-      await axios.patch(`http://localhost:3000/v1/question/${id}`, updatedData);
+      await axios.patch(`${API_BASE_URL}/question/${id}`, updatedData);
       toast.success("Question updated successfully!", {
         autoClose: 1000,
       });
@@ -108,7 +110,7 @@ const Edit = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`http://localhost:3000/v1/question/${id}`);
+      await axios.delete(`${API_BASE_URL}/question/${id}`);
       toast.success("Question deleted successfully!", {
         autoClose: 1000,
       });

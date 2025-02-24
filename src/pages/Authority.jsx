@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+const API_BASE_URL = "http://localhost:3000/v1";
 
 function Authority() {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ function Authority() {
     const fetchUserData = async () => {
       const userData = JSON.parse(localStorage.getItem("userData"));
       try {
-        const response = await axios.get("http://localhost:3000/v1/author/all");
+        const response = await axios.get(`${API_BASE_URL}/author/all`);
         const users = response.data.data;
         const currentUser = users.find((user) => user.id === userData.userId);
         if (currentUser) {
@@ -53,7 +54,7 @@ function Authority() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:3000/v1/author/", formData, {
+      const response = await axios.post(`${API_BASE_URL}/author/`, formData, {
         headers: { "Content-Type": "application/json" },
       });
 

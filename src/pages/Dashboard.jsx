@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const API_BASE_URL = "http://localhost:3000/v1";
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
@@ -26,7 +28,7 @@ const Dashboard = () => {
     
     const verifyUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/v1/author/all");
+        const response = await fetch(`${API_BASE_URL}/author/all`);
         if (!response.ok) throw new Error("Failed to fetch authors");
 
         const data = await response.json();
@@ -65,7 +67,7 @@ const Dashboard = () => {
         news_date: date || undefined,
       };
 
-      const response = await axios.get("http://localhost:3000/v1/questions/", { params });
+      const response = await axios.get(`${API_BASE_URL}/questions/`, { params });
       
       if (response.data?.data?.result.length > 0) {
         setQuestions(response.data.data.result);
@@ -83,7 +85,7 @@ const Dashboard = () => {
 
   const fetchAuthors = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/v1/author/all?role=creator");
+      const response = await axios.get(`${API_BASE_URL}/author/all?role=creator`);
       setAuthors(response.data.data || []);
     } catch (error) {
       console.error("Error fetching authors:", error);

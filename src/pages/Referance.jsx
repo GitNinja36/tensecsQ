@@ -3,6 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = "http://localhost:3000/v1";
+
 function Referance() {
   const [news, setNews] = useState([]);
   const [sources, setSources] = useState(["ndtv", "hindustan_times", "times_of_india", "aaj_tak"]);
@@ -16,6 +18,7 @@ function Referance() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
+
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("userData"));
     if (!userData || !userData.username || !userData.userId) {
@@ -25,7 +28,7 @@ function Referance() {
     
     const verifyUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/v1/author/all");
+        const response = await fetch(`${API_BASE_URL}/author/all`);
         if (!response.ok) throw new Error("Failed to fetch authors");
 
         const data = await response.json();
@@ -39,9 +42,7 @@ function Referance() {
           setIsAuthorized(true);
         }
       } catch (error) {
-        console.error("Authorization failed:", error, {
-          autoClose: 1000,
-        });
+        console.error("Authorization failed:", error);
         navigate("/user/createuser");
       }
     };
@@ -51,7 +52,7 @@ function Referance() {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`http://localhost:3000/v1/news?source=${source}&category=${category}`)
+    axios.get(`${API_BASE_URL}/news?source=${source}&category=${category}`)
       .then(response => {
         if (response.data?.data && Array.isArray(response.data.data)) {
           setNews(response.data.data);
@@ -67,63 +68,8 @@ function Referance() {
       .finally(() => setLoading(false));
   }, [source, category]);
 
-  const handleQuestionCreate = async (newsItem) => {
-    try {
-      const userData = JSON.parse(localStorage.getItem("userData"));
-      if (!userData || !userData.userId) {
-        toast.error("User not found. Please log in.", {
-          autoClose: 1000,
-        });
-        return;
-      }
-
-      const questionData = [
-        {
-          question: newsItem.title || "Untitled Question",
-          option_1: "Option 1",
-          option_2: "Option 2",
-          option_3: "Option 3",
-          option_4: "Option 4",
-          correct_option: 1,
-          category: category || "general",
-          difficulty: "easy",
-          image_url: newsItem.image_url || "https://via.placeholder.com/150",
-          news_summary: newsItem.summary || "No summary available.",
-          status: "draft",
-          author_id: userData.userId
-        }
-      ];
-
-      console.log("Sending question data:", questionData); 
-
-      const response = await axios.post("http://localhost:3000/v1/questions/", questionData);
-
-      if (response.status === 201) {
-        toast.success("Question created successfully", {
-          autoClose: 1000,
-        });
-
-        const questionsResponse = await axios.get("http://localhost:3000/v1/questions?page_size=100");
-
-        if (questionsResponse.status === 200 && questionsResponse.data.data.result) {
-          console.log(questionsResponse.data.data.result)
-          const createdQuestion = questionsResponse.data.data.result.find(q => q.question === newsItem.title);
-          console.log(createdQuestion);
-          if (createdQuestion) {
-            navigate(`/question/edit/${createdQuestion.id}`);
-          } else {
-            toast.error("Question created but not found in the list.", {
-              autoClose: 1000, 
-            });
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error creating question:", error);
-      toast.error("Failed to create question. Please check console for details.", {
-        autoClose: 1000, 
-      });
-    }
+  const handleQuestionRedirect = (newsItem) => {
+    navigate(`/question?summary=${encodeURIComponent(newsItem.summary || "No summary available")}&url=${encodeURIComponent(newsItem.image_url || "")}&category=${encodeURIComponent(category)}`);
   };
 
   return (
@@ -156,10 +102,10 @@ function Referance() {
       {/* Loading Spinner */}
       {loading && <div className="text-center text-gray-600 text-lg">Loading news...</div>}
 
-      {/* News Grid */}
+      {/* No News Found */}
       {!loading && news.length === 0 && <div className="text-center text-gray-600 text-lg">No news found.</div>}
 
-      {/* News Cards */}
+      {/* News Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {news.map((item, index) => (
           <div key={index} className="border p-4 rounded-lg shadow-md bg-white flex flex-col h-full">
@@ -168,9 +114,9 @@ function Referance() {
             <p className="text-gray-600 text-sm flex-grow">{item.summary || "No summary available."}</p>
             <button
               className="bg-blue-500 text-white px-4 py-2 rounded-md mt-3 w-full"
-              onClick={() => handleQuestionCreate(item)}
+              onClick={() => handleQuestionRedirect(item)}
             >
-              Question
+              Create Question
             </button>
           </div>
         ))}

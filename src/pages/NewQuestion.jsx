@@ -1,19 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+const API_BASE_URL = "http://localhost:3000/v1";
+
 const NewQuestion = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+
+  const referenceData = {
+    summary: queryParams.get("summary") || "",
+    category: queryParams.get("category") || "",
+    url: queryParams.get("url") || "",
+  };
   const [forms, setForms] = useState([
     {
-      question: "",
-      options: ["", "", "", ""],
-      correctOption: "",
-      category: "",
-      difficulty: "",
-      imageUrl: "",
-      newsSummary: "",
+      question: referenceData.question || "",
+      options: referenceData.options || ["", "", "", ""],
+      correctOption: referenceData.correctOption || "",
+      category: referenceData.category || "",
+      difficulty: referenceData.difficulty || "",
+      imageUrl: referenceData.url || "",
+      newsSummary: referenceData.summary || "",
     },
   ]);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -26,7 +36,7 @@ const NewQuestion = () => {
     
     const verifyUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/v1/author/all");
+        const response = await fetch(`${API_BASE_URL}/author/all`);
         if (!response.ok) throw new Error("Failed to fetch authors");
 
         const data = await response.json();
@@ -147,7 +157,7 @@ const NewQuestion = () => {
         author_id: userData.userId,
       }));
 
-      const response = await fetch("http://localhost:3000/v1/questions/", {
+      const response = await fetch(`${API_BASE_URL}/questions/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
