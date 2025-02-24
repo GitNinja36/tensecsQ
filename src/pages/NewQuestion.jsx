@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const API_BASE_URL = "http://localhost:3000/v1";
+const API_BASE_URL =import.meta.env.VITE_BACKEND_BASE_URL;
 
 const NewQuestion = () => {
   const navigate = useNavigate();

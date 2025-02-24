@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:3000/v1";
+const API_BASE_URL =import.meta.env.VITE_BACKEND_BASE_URL;
 
 const Edit = () => {
   const { id } = useParams();

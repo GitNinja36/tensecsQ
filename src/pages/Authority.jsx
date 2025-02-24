@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-const API_BASE_URL = "http://localhost:3000/v1";
+const API_BASE_URL =import.meta.env.VITE_BACKEND_BASE_URL;
 
 function Authority() {
   const navigate = useNavigate();
