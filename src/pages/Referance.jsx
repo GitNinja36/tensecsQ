@@ -7,9 +7,9 @@ const API_BASE_URL =import.meta.env.VITE_BACKEND_BASE_URL;
 
 function Referance() {
   const [news, setNews] = useState([]);
-  const [sources, setSources] = useState(["ndtv", "hindustan_times", "times_of_india", "aaj_tak"]);
+  const [sources, setSources] = useState(["ndtv", "the_hindu", "times_of_india"]);
   const [categories, setCategories] = useState([
-    "sports", "politics", "history", "world", "technology",
+    "sports", "cricket", "football", "politics", "history", "world", "technology",
     "entertainment", "business", "health", "science", "education",
     "lifestyle", "finance", "startup", "trending"
   ]);
