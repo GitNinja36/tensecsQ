@@ -19,7 +19,7 @@ const Auth = () => {
       });
 
       if (response.data.valid) {
-        const expires = new Date().getTime() + 60 * 60 * 1000; // 1 hour from now
+        const expires = new Date().getTime() + 60 * 60 * 1000;
         const userData = {
           userId: response.data.data.id,
           username: response.data.data.username,

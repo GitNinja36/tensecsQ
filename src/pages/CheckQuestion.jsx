@@ -177,7 +177,7 @@ function CheckQuestion() {
           </div>
 
           {/* News Summary */}
-          <p className="w-full border p-2 rounded mb-4 h-30 ">{question.news_summary}</p>
+          <p className="w-full h-auto border p-2 rounded mb-4 ">{question.news_summary}</p>
 
           {/* Buttons */}
           <div className="flex justify-between mt-6 mb-2">
