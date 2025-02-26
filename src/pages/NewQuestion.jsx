@@ -151,7 +151,7 @@ const NewQuestion = () => {
         correct_option: parseInt(form.correctOption),
         category: form.category,
         difficulty: form.difficulty,
-        image_url: form.imageUrl,
+        image_url: form.imageUrl || null,
         news_summary: form.newsSummary,
         status: "draft",
         author_id: userData.userId,
