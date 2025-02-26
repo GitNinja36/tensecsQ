@@ -95,6 +95,7 @@ const Edit = () => {
         correct_option: correctOption,
         category,
         difficulty,
+        image_url: newsUrl,
         news_summary: newsSummary,
       };
 
